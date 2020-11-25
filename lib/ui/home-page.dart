@@ -11,6 +11,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
+  var completedOrders = [];
+  var currentOrder = {
+    "placeHolder": "placeHolder",
+    "orderDelivered": true,
+  };
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -18,7 +24,17 @@ class _HomePageState extends State<HomePage>
       child: Scaffold(
         body: TabBarView(
           physics: NeverScrollableScrollPhysics(),
-          children: [DashBoardPage(), OrdersPage(), ProfilePage()],
+          children: [
+            DashBoardPage(
+              function: function,
+            ),
+            OrdersPage(
+              currentOrder: currentOrder,
+              completedOrders: completedOrders,
+              function: function2,
+            ),
+            ProfilePage()
+          ],
         ),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
@@ -55,4 +71,7 @@ class _HomePageState extends State<HomePage>
       ),
     );
   }
+
+  function(value) => setState(() => currentOrder = value);
+  function2(value) => setState(() => completedOrders = value);
 }

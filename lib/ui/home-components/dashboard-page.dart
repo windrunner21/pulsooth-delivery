@@ -1,9 +1,14 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:pulsooth_courier/models/order.dart';
 
 class DashBoardPage extends StatefulWidget {
   @override
   _DashBoardPageState createState() => _DashBoardPageState();
+  final Function function;
+  DashBoardPage({Key key, this.function}) : super(key: key);
 }
 
 class _DashBoardPageState extends State<DashBoardPage> {
@@ -21,22 +26,6 @@ class _DashBoardPageState extends State<DashBoardPage> {
       "description":
           "Hello fellow family member! Look, this application is really simple to use. We have just 3 main categories in here: Home Page, Orders Page and Profile Page. Home Page has What's New section together with the fresh and hot orders that just appeared in the system. You can look at them, see if the delivery district is comfortable for you, choose the order and just deliver the product we will provide you to the specified address. Orders Page shows your current active order together with previous orders in any case of emergency or need in the future. Profile Page is where you can tweak and change information about yourself, your car, your profile or just check the user agreement if you are interested in them. Good luck!",
     }
-  ];
-  var orders = [
-    {
-      "id": "5fafd554cfec260ca948a2ea",
-      "district": "Narimanov",
-      "addressLine": "A. Aliyev 26, Bina 10, Blok 2, Menzil 1015",
-      "orderName": "Momkinz Diaper",
-      "orderDetails": "2 | 3-6 KG",
-    },
-    {
-      "id": "5fafd554cfec260ca948a2e2",
-      "district": "Yasamal",
-      "addressLine": "Z. Khalilov 34, Bina 5, Blok 1, Menzil 44",
-      "orderName": "Momkinz Diaper",
-      "orderDetails": "2 | 3-6 KG",
-    },
   ];
 
   @override
@@ -154,84 +143,132 @@ class _DashBoardPageState extends State<DashBoardPage> {
                     ],
                   );
                 }
-                return ExpansionPanelList.radio(
-                  initialOpenPanelValue: orders[0]['id'],
-                  children: orders.map<ExpansionPanelRadio>(
-                    (order) {
-                      return ExpansionPanelRadio(
-                        value: order['id'],
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            contentPadding:
-                                const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                            title: Text(
-                              order["district"] + " District",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
-                                color: Color(0xFF5b70d9),
+                return FutureBuilder(
+                  future: getOrders(),
+                  builder: (context, ordersSnapshot) {
+                    if (ordersSnapshot.connectionState ==
+                        ConnectionState.done) {
+                      return ExpansionPanelList.radio(
+                        initialOpenPanelValue: ordersSnapshot.data.orders[0].id,
+                        children:
+                            ordersSnapshot.data.orders.map<ExpansionPanelRadio>(
+                          (order) {
+                            return ExpansionPanelRadio(
+                              value: order.id,
+                              headerBuilder:
+                                  (BuildContext context, bool isExpanded) {
+                                return ListTile(
+                                  contentPadding:
+                                      const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                  title: Text(
+                                    districtFormatter(order.district) +
+                                        " District",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 18,
+                                      color: Color(0xFF5b70d9),
+                                    ),
+                                  ),
+                                  subtitle: Padding(
+                                    padding: const EdgeInsets.only(top: 10),
+                                    child: Text(
+                                      order.addressLine,
+                                      style: TextStyle(
+                                          fontSize: 15, color: Colors.black),
+                                    ),
+                                  ),
+                                );
+                              },
+                              body: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 0, horizontal: 20),
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Product:",
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey[700]),
+                                    ),
+                                    Text(
+                                      order.orderName,
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey[700]),
+                                    ),
+                                  ],
+                                ),
+                                subtitle: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Details:",
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[700]),
+                                        ),
+                                        Text(
+                                          order.orderDetails,
+                                          textAlign: TextAlign.end,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[700]),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "FID:",
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey[700]),
+                                        ),
+                                        Expanded(
+                                          child: SelectableText(
+                                            order.fid,
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey[700]),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 20),
+                                  ],
+                                ),
+                                trailing: Icon(SimpleLineIcons.plus,
+                                    color: Colors.green),
+                                onTap: () {
+                                  _showMyDialog(order);
+                                },
                               ),
-                            ),
-                            subtitle: Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Text(
-                                order["addressLine"],
-                                style: TextStyle(
-                                    fontSize: 15, color: Colors.black),
-                              ),
-                            ),
-                          );
-                        },
-                        body: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 0, horizontal: 20),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Product:",
-                                textAlign: TextAlign.start,
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.grey[700]),
-                              ),
-                              Text(
-                                order["orderName"],
-                                textAlign: TextAlign.end,
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.grey[700]),
-                              ),
-                            ],
-                          ),
-                          subtitle: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Details:",
-                                textAlign: TextAlign.start,
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.grey[700]),
-                              ),
-                              Text(
-                                order["orderDetails"],
-                                textAlign: TextAlign.end,
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.grey[700]),
-                              ),
-                            ],
-                          ),
-                          trailing:
-                              Icon(SimpleLineIcons.plus, color: Colors.green),
-                          onTap: () {
-                            _showMyDialog(
-                              order['orderName'],
-                              order['district'],
-                              order['addressLine'],
                             );
                           },
+                        ).toList(),
+                      );
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          backgroundColor: Color(0xFF5b70d9),
                         ),
                       );
-                    },
-                  ).toList(),
+                    }
+                  },
                 );
               },
             ),
@@ -341,7 +378,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
     );
   }
 
-  Future<void> _showMyDialog(productName, location, location2) async {
+  Future<void> _showMyDialog(order) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -351,9 +388,11 @@ class _DashBoardPageState extends State<DashBoardPage> {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text(productName),
+                Text(order.orderName),
                 SizedBox(height: 10),
-                Text(location + " District, " + location2),
+                Text(districtFormatter(order.district) +
+                    " District, " +
+                    order.addressLine),
               ],
             ),
           ),
@@ -375,6 +414,15 @@ class _DashBoardPageState extends State<DashBoardPage> {
                 ),
               ),
               onPressed: () {
+                var orderToPass = {
+                  "id": order.id,
+                  "district": districtFormatter(order.district),
+                  "addressLine": order.addressLine,
+                  "orderName": order.orderName,
+                  "orderDetails": order.orderDetails,
+                  "orderDelivered": false,
+                };
+                widget.function(orderToPass);
                 Navigator.of(context).pop();
               },
             ),
@@ -382,5 +430,87 @@ class _DashBoardPageState extends State<DashBoardPage> {
         );
       },
     );
+  }
+
+  Future<OrdersList> getOrders() async {
+    var url = 'https://pulsooth.az/api/admin/getOrdersTest';
+
+    Map data = {};
+
+    var body = json.encode(data);
+    var response = await http.post(url,
+        headers: {"Content-Type": "application/json"}, body: body);
+
+    List<dynamic> ordersMap = jsonDecode(response.body);
+    var orders = OrdersList.fromJson(ordersMap);
+
+    return orders;
+  }
+
+  String districtFormatter(index) {
+    switch (index) {
+      case 0:
+        {
+          return "Binagadi";
+        }
+        break;
+      case 1:
+        {
+          return "Garadagh";
+        }
+        break;
+      case 2:
+        {
+          return "Khatai";
+        }
+        break;
+      case 3:
+        {
+          return "Khazar";
+        }
+        break;
+      case 4:
+        {
+          return "Narimanov";
+        }
+        break;
+      case 5:
+        {
+          return "Nasimi";
+        }
+        break;
+      case 6:
+        {
+          return "Nizami";
+        }
+        break;
+      case 7:
+        {
+          return "Pirallahy";
+        }
+        break;
+      case 8:
+        {
+          return "Sabail";
+        }
+        break;
+      case 9:
+        {
+          return "Sabunchu";
+        }
+        break;
+      case 10:
+        {
+          return "Surakhany";
+        }
+        break;
+      case 11:
+        {
+          return "Yasamal";
+        }
+        break;
+    }
+
+    return "Error";
   }
 }
