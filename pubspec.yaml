@@ -30,10 +30,16 @@ dependencies:
   google_fonts: ^1.1.1
   flutter_icons: ^1.1.0
   slider_button: ^0.6.0
+  flutter_launcher_icons: ^0.8.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  image_path: "lib/assets/logo.png"
+  android: true
+  ios: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
