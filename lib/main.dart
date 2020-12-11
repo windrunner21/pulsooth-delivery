@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pulsooth_courier/ui/login-page.dart';
+import 'package:pulsooth_courier/ui/landing-page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: LoginPage(),
+      home: LandingPage(),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:pulsooth_courier/ui/home-page.dart';
+import 'package:pulsooth_courier/classes/phone-number-formatter.dart';
+import 'package:pulsooth_courier/classes/social-id-formatter.dart';
+import 'package:pulsooth_courier/ui/auth-components/verify-page.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -10,6 +12,20 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   // key to check the sign in form
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final fullname = TextEditingController();
+  final socialId = TextEditingController();
+  final phoneNumber = TextEditingController();
+  final password = TextEditingController();
+
+  @override
+  void dispose() {
+    fullname.dispose();
+    socialId.dispose();
+    phoneNumber.dispose();
+    password.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +68,12 @@ class _SignUpPageState extends State<SignUpPage> {
                         }
                         return null;
                       },
+                      autofocus: true,
+                      controller: fullname,
                       textCapitalization: TextCapitalization.words,
                       decoration: InputDecoration(
                         labelText: 'Full Name',
-                        helperText: "ex. Name Surname",
+                        hintText: "Name Surname",
                         labelStyle: TextStyle(
                             fontWeight: FontWeight.w500, color: Colors.black54),
                         prefixIcon: Icon(
@@ -71,6 +89,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         }
                         return null;
                       },
+                      controller: socialId,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         labelText: 'Social Identity Number',
@@ -78,11 +97,17 @@ class _SignUpPageState extends State<SignUpPage> {
                           FlutterIcons.identifier_mco,
                           color: Color(0xFF364DB9),
                         ),
-                        helperText: "ex. AZE xxxx xxxx",
+                        hintText: "xxxx xxxx",
                         prefixText: "AZE ",
                         labelStyle: TextStyle(
                             fontWeight: FontWeight.w500, color: Colors.black54),
                       ),
+                      inputFormatters: [
+                        SocialIdFormatter(
+                          mask: 'xxxx xxxx',
+                          separator: ' ',
+                        ),
+                      ],
                     ),
                     TextFormField(
                       validator: (String value) {
@@ -91,10 +116,11 @@ class _SignUpPageState extends State<SignUpPage> {
                         }
                         return null;
                       },
+                      controller: phoneNumber,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         labelText: "Phone Number",
-                        helperText: 'ex. +994 (5x) xxx xx xx',
+                        hintText: '(xx) xxx xx xx',
                         prefixText: "+994 ",
                         prefixIcon: Icon(
                           SimpleLineIcons.screen_smartphone,
@@ -103,25 +129,12 @@ class _SignUpPageState extends State<SignUpPage> {
                         labelStyle: TextStyle(
                             fontWeight: FontWeight.w500, color: Colors.black54),
                       ),
-                    ),
-                    TextFormField(
-                      validator: (String value) {
-                        if (value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        return null;
-                      },
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        helperText: "ex. xxxxxx@xxxx",
-                        labelStyle: TextStyle(
-                            fontWeight: FontWeight.w500, color: Colors.black54),
-                        prefixIcon: Icon(
-                          SimpleLineIcons.envelope,
-                          color: Color(0xFF364DB9),
+                      inputFormatters: [
+                        PhoneNumberFormatter(
+                          mask: 'xx xxx xx xx',
+                          separator: ' ',
                         ),
-                      ),
+                      ],
                     ),
                     TextFormField(
                       validator: (String value) {
@@ -130,30 +143,16 @@ class _SignUpPageState extends State<SignUpPage> {
                         }
                         return null;
                       },
+                      controller: password,
                       keyboardType: TextInputType.visiblePassword,
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        helperText: "ex. 1 uppercase, 1 digit, length > 8",
                         labelStyle: TextStyle(
                             fontWeight: FontWeight.w500, color: Colors.black54),
                         prefixIcon: Icon(
                           SimpleLineIcons.lock,
                           color: Color(0xFF364DB9),
-                        ),
-                        suffix: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => HomePage(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'Forgot?',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
                         ),
                       ),
                     ),
@@ -170,12 +169,25 @@ class _SignUpPageState extends State<SignUpPage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomePage(),
-                      ),
-                    );
+                    if (_formKey.currentState.validate()) {
+                      var finalPhoneNumber =
+                          '+994' + phoneNumber.text.replaceAll(" ", "");
+
+                      var userSignUpInfo = {
+                        'fullname': fullname.text,
+                        'socialId': socialId.text,
+                        'phoneNumber': finalPhoneNumber,
+                        'password': password.text,
+                      };
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              VerifyPhonePage(object: userSignUpInfo),
+                        ),
+                      );
+                    }
                   },
                   child: Text(
                     "Sign Up",

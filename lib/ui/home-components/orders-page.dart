@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:slider_button/slider_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OrdersPage extends StatefulWidget {
   @override
@@ -19,7 +20,7 @@ class _OrdersPageState extends State<OrdersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(30, 60, 30, 30),
+        padding: const EdgeInsets.fromLTRB(30, 80, 30, 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -93,20 +94,63 @@ class _OrdersPageState extends State<OrdersPage> {
                               ),
                             ],
                           ),
-                          subtitle: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          subtitle: Column(
                             children: [
-                              Text(
-                                "Details:",
-                                textAlign: TextAlign.start,
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.grey[700]),
+                              SizedBox(height: 5),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Details:",
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                        fontSize: 16, color: Colors.grey[700]),
+                                  ),
+                                  Text(
+                                    widget.currentOrder["orderDetails"],
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                        fontSize: 16, color: Colors.grey[700]),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                widget.currentOrder["orderDetails"],
-                                textAlign: TextAlign.end,
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.grey[700]),
+                              SizedBox(height: 5),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Contact Info:",
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                        fontSize: 16, color: Colors.grey[700]),
+                                  ),
+                                  RaisedButton.icon(
+                                    onPressed: () =>
+                                        launch("tel://+994517807929"),
+                                    color: Colors.white,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                      side: BorderSide(
+                                        color: Color(0xFF364DB9),
+                                      ),
+                                    ),
+                                    icon: Icon(
+                                      SimpleLineIcons.phone,
+                                      size: 20,
+                                      color: Color(0xFF364DB9),
+                                    ),
+                                    label: Text(
+                                      'Call',
+                                      style: TextStyle(
+                                        color: Color(0xFF364DB9),
+                                      ),
+                                    ),
+                                  )
+                                ],
                               ),
                             ],
                           ),

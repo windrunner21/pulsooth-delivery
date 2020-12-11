@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pulsooth_courier/ui/home-page.dart';
 
 class VerifyPhonePage extends StatefulWidget {
   @override
   _VerifyPhonePageState createState() => _VerifyPhonePageState();
+  final object;
+  VerifyPhonePage({Key key, this.object}) : super(key: key);
 }
 
 class _VerifyPhonePageState extends State<VerifyPhonePage> {
@@ -17,6 +20,19 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
 
   @override
   Widget build(BuildContext context) {
+    final _phoneNumber =
+        widget.object['phoneNumber'].toString().substring(0, 4) +
+            ' (' +
+            widget.object['phoneNumber'].toString().substring(4, 6) +
+            ') ' +
+            widget.object['phoneNumber'].toString().substring(6, 9) +
+            ' ' +
+            widget.object['phoneNumber'].toString().substring(9, 11) +
+            ' ' +
+            widget.object['phoneNumber']
+                .toString()
+                .substring(11, widget.object['phoneNumber'].toString().length);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -38,7 +54,7 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
             ),
             SizedBox(height: 20),
             Text('We have sent you an SMS with a code to'),
-            Text('the number +994 (5x) xxx xx xx'),
+            Text('the number' + _phoneNumber),
             SizedBox(height: 10),
             // custom sms code entering
             Row(
@@ -157,7 +173,12 @@ class _VerifyPhonePageState extends State<VerifyPhonePage> {
                           FocusScope.of(context).requestFocus(_focus5);
                         }
                         if (str.length == 1) {
-                          print('send code');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HomePage(),
+                            ),
+                          );
                         }
                       }),
                 ),

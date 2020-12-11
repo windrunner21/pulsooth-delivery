@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pulsooth_courier/ui/auth-components/forgot-password-page.dart';
+import 'package:pulsooth_courier/classes/social-id-formatter.dart';
 import 'package:pulsooth_courier/ui/home-page.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
@@ -11,6 +11,14 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   // key to check the sign in form
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final socialId = TextEditingController();
+
+  @override
+  void dispose() {
+    socialId.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +51,7 @@ class _SignInPageState extends State<SignInPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(15),
                 ),
-                padding: EdgeInsets.fromLTRB(20, 10, 20, 40),
+                padding: EdgeInsets.fromLTRB(20, 10, 20, 30),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -54,50 +62,25 @@ class _SignInPageState extends State<SignInPage> {
                         }
                         return null;
                       },
+                      controller: socialId,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         labelText: 'Social Identity Number',
                         labelStyle: TextStyle(
                             fontWeight: FontWeight.w500, color: Colors.black54),
+                        hintText: 'xxxx xxxx',
                         prefixText: "AZE ",
                         prefixIcon: Icon(
                           FlutterIcons.identifier_mco,
                           color: Color(0xFF364DB9),
                         ),
                       ),
-                    ),
-                    TextFormField(
-                      validator: (String value) {
-                        if (value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        return null;
-                      },
-                      keyboardType: TextInputType.visiblePassword,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        labelStyle: TextStyle(
-                            fontWeight: FontWeight.w500, color: Colors.black54),
-                        prefixIcon: Icon(
-                          SimpleLineIcons.lock,
-                          color: Color(0xFF364DB9),
+                      inputFormatters: [
+                        SocialIdFormatter(
+                          mask: 'xxxx xxxx',
+                          separator: ' ',
                         ),
-                        suffix: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ForgotPasswordPage(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'Forgot?',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -112,12 +95,14 @@ class _SignInPageState extends State<SignInPage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomePage(),
-                      ),
-                    );
+                    if (_formKey.currentState.validate()) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomePage(),
+                        ),
+                      );
+                    }
                   },
                   child: Text(
                     "Log In",
