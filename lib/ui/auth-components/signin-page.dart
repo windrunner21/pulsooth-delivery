@@ -58,7 +58,7 @@ class _SignInPageState extends State<SignInPage> {
                     TextFormField(
                       validator: (String value) {
                         if (value.isEmpty) {
-                          return 'Please enter your phone number';
+                          return 'Please enter your social id';
                         }
                         return null;
                       },

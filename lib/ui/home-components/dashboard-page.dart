@@ -132,29 +132,46 @@ class _DashBoardPageState extends State<DashBoardPage> {
                                           fontSize: 16,
                                           color: Colors.grey[700]),
                                     ),
-                                    RaisedButton.icon(
-                                      onPressed: () =>
-                                          launch("tel://+994517807929"),
-                                      color: Colors.white,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15),
-                                        side: BorderSide(
-                                          color: Color(0xFF364DB9),
-                                        ),
-                                      ),
-                                      icon: Icon(
-                                        SimpleLineIcons.phone,
-                                        size: 20,
-                                        color: Color(0xFF364DB9),
-                                      ),
-                                      label: Text(
-                                        'Call',
-                                        style: TextStyle(
-                                          color: Color(0xFF364DB9),
-                                        ),
-                                      ),
-                                    )
+                                    FutureBuilder(
+                                      future: getPhoneNumber(order.fid),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.done) {
+                                          return RaisedButton.icon(
+                                            onPressed: () => launch("tel://" +
+                                                snapshot.data.toString()),
+                                            color: Colors.white,
+                                            elevation: 0,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              side: BorderSide(
+                                                color: Color(0xFF364DB9),
+                                              ),
+                                            ),
+                                            icon: Icon(
+                                              SimpleLineIcons.phone,
+                                              size: 20,
+                                              color: Color(0xFF364DB9),
+                                            ),
+                                            label: Text(
+                                              'Call',
+                                              style: TextStyle(
+                                                color: Color(0xFF364DB9),
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          return Text(
+                                            'Detecting',
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey[700]),
+                                          );
+                                        }
+                                      },
+                                    ),
                                   ],
                                 ),
                                 SizedBox(height: 15),
@@ -261,6 +278,22 @@ class _DashBoardPageState extends State<DashBoardPage> {
     var orders = OrdersList.fromJson(ordersMap);
 
     return orders;
+  }
+
+  Future<String> getPhoneNumber(fid) async {
+    var url = 'https://pulsooth.az/api/admin/getPhoneNumber';
+
+    Map data = {
+      'f_id': fid,
+    };
+
+    var body = json.encode(data);
+    var response = await http.post(url,
+        headers: {"Content-Type": "application/json"}, body: body);
+
+    String pnumber = jsonDecode(response.body)['phone'];
+
+    return pnumber;
   }
 
   String districtFormatter(index) {
